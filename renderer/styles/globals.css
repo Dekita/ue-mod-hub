@@ -409,6 +409,18 @@ small {
     background: url('/img/stellar-blade/bg3.webp') no-repeat center center fixed;
     background-size: cover;
 }
+.game-bg.the-killing-antidote1::before {
+    background: url('/img/the-killing-antidote/bg1.webp') no-repeat center center fixed;
+    background-size: cover;
+}
+.game-bg.the-killing-antidote2::before {
+    background: url('/img/the-killing-antidote/bg2.webp') no-repeat center center fixed;
+    background-size: cover;
+}
+.game-bg.the-killing-antidote3::before {
+    background: url('/img/the-killing-antidote/bg3.webp') no-repeat center center fixed;
+    background-size: cover;
+}
 
 
 
