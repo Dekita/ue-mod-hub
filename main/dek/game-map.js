@@ -213,6 +213,18 @@ const SATISFACTORY = {
 }
 
 
+const THEKILLINGANTIDOTE = {
+    providers: {
+        nexus: "thekillingantidote"
+    },
+    platforms: {
+        game: {
+            steam: {id: "2254890", root: "TheKillingAntidote", app: "TheKillingAntidote"},
+            modloader: {ue4ss: KNOWN_MODLOADERS.optional_ue4ss}
+        }
+    },
+}
+
 
 
 export default {
@@ -228,4 +240,5 @@ export default {
     "stellar-blade": STELLARBLADE,
     // "stellar-blade-demo": STELLARBLADEDEMO,
     "tekken8": TEKKEN8,
+    "the-killing-antidote": THEKILLINGANTIDOTE,
 }
