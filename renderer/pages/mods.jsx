@@ -70,7 +70,7 @@ function determineAdvertizedMods(slug) {
     switch (slug) {
         case 'palworld': return [577, 703, 1204, 146, 489];//1650, 487, 577, 489]//, 1204];//, 1314, 1650, 1640];
         case 'hogwarts-legacy': return [1260, 1261, 1275, 1179];
-        case 'stellar-blade': return [340, 488, 489, 531, 546, 630];
+        case 'stellar-blade': return [1496, 630, 340, 488, 489, 531];
     }
     return [];
 }
