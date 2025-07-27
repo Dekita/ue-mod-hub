@@ -139,6 +139,14 @@
                 "{{games.generic.info.1}}",
                 "{{games.generic.info.2}}"
             ]
+        },
+        "the-killing-antidote": {
+            "name": "The Killing Antidote",
+            "info": [
+                "This is a TPS game. Shooting, fighting, dress-up, puzzle solving, and more. In the future, a special germ causes humans to be constantly infected and mutate. The main character, Jodie, is a respected journalist who goes in search of a classic antidote and finds herself in danger.",
+                "{{games.generic.info.1}}",
+                "{{games.generic.info.2}}"
+            ]
         }
     },
     
