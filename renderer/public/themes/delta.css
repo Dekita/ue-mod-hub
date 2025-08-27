@@ -1,0 +1,53 @@
+:root {
+	--dek-gen-version: 0.0.97;
+
+	/* Base */
+	--dek-body-color: #0b0f0a; /* Deep jungle shadow */
+	--dek-text-color: #d2d6cc; /* Muted pale green-gray, readable in low light */
+
+	/* Modals */
+	--dek-modal-body-color: #121811; /* Dark camo green-gray */
+	--dek-modal-text-color: #e5e8e0; /* Softer pale green for contrast */
+	--dek-modal-border-color: #1a2119; /* Subtle deep border tone */
+
+	/* Cards */
+	--dek-card-body-color: #161e15; /* Forest night green */
+	--dek-card-text-color: #d7dccf; /* Slightly glowing pale green */
+	--dek-card-header-color: #2f3d2a; /* Muted military olive */
+
+	/* Primary (Camo Green tones) */
+	--dek-primary-normal: #3e5c2f; /* Olive green, tactical camo */
+	--dek-primary-darker: #2f4523; /* Dark jungle leaf */
+	--dek-primary-darkest: #1f2e17; /* Almost black-olive */
+	--dek-primary-light: #567a44; /* Sunlit olive green */
+
+	/* Secondary (Steel & Gunmetal) */
+	--dek-secondary-normal: #4a5550; /* Worn gunmetal gray-green */
+	--dek-secondary-darker: #38423d; /* Darker steel shade */
+	--dek-secondary-darkest: #262c29; /* Near-black metal */
+	--dek-secondary-light: #66736b; /* Lighter brushed metal */
+
+	/* Info (Muted Teal/Camo Blue) */
+	--dek-info-normal: #3d5550; /* Camo teal */
+	--dek-info-darker: #2f403c; /* Darker jungle teal */
+	--dek-info-darkest: #202b28; /* Deep shadow teal */
+	--dek-info-light: #57726b; /* Subdued aqua highlight */
+
+	/* Success (Survival Green) */
+	--dek-success-normal: #44613b; /* Forest moss */
+	--dek-success-darker: #33492d; /* Dense jungle green */
+	--dek-success-darkest: #22311f; /* Shadow moss */
+	--dek-success-light: #5d7e52; /* Fresh foliage */
+
+	/* Warning (Camo Brown/Khaki) */
+	--dek-warning-normal: #756542; /* Worn khaki brown */
+	--dek-warning-darker: #594c33; /* Dark leather brown */
+	--dek-warning-darkest: #3c3422; /* Earth soil */
+	--dek-warning-light: #958356; /* Sun-bleached khaki */
+
+	/* Danger (Muted Blood Red / Camouflage Accent) */
+	--dek-danger-normal: #6a3c3c; /* Dried blood red */
+	--dek-danger-darker: #4e2d2d; /* Darker crimson brown */
+	--dek-danger-darkest: #331f1f; /* Shadow red */
+	--dek-danger-light: #875050; /* Muted scarlet accent */
+}

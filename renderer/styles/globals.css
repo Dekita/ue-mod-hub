@@ -421,10 +421,18 @@ small {
     background: url('/img/the-killing-antidote/bg3.webp') no-repeat center center fixed;
     background-size: cover;
 }
-
-
-
-
+.game-bg.mgs-delta1::before {
+    background: url('/img/mgs-delta/bg1.webp') no-repeat center center fixed;
+    background-size: cover;
+}
+.game-bg.mgs-delta2::before {
+    background: url('/img/mgs-delta/bg2.webp') no-repeat center center fixed;
+    background-size: cover;
+}
+.game-bg.mgs-delta3::before {
+    background: url('/img/mgs-delta/bg3.webp') no-repeat center center fixed;
+    background-size: cover;
+}
 
 @media (min-width: 576px) {
     .footer {

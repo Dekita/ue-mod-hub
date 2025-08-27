@@ -1,6 +1,6 @@
 {
     "private": true,
-    "version": "0.10.24",
+    "version": "0.10.32",
     "name": "dekita-ue-mod-hub",
     "productName": "UE Mod Hub",
     "description": "UE Mod Hub written by DekitaRPG",
@@ -74,13 +74,14 @@
         "react-simple-typewriter": "^5.0.1",
         "react-spinners-kit": "^1.9.1",
         "react-toastify": "^8.0.2",
+        "sharp": "^0.34.3",
         "tailwindcss": "^3.4.10"
     },
     "resolutions": {
         "bbcode-to-react/react": "18.3.1"
     },
     "release": {
-        "date": "7/27/2025",
-        "time": "6:52:01 PM"
+        "date": "8/27/2025",
+        "time": "4:22:46 PM"
     }
 }

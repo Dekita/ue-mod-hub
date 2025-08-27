@@ -147,6 +147,14 @@
                 "{{games.generic.info.1}}",
                 "{{games.generic.info.2}}"
             ]
+        },
+        "mgs-delta": {
+            "name": "MGS: Delta",
+            "info": [
+                "A remake of the 2004 game METAL GEAR SOLID 3: SNAKE EATER, with the same gripping story and engrossing world, now with all new graphics and 3D audio.",
+                "{{games.generic.info.1}}",
+                "{{games.generic.info.2}}"
+            ]
         }
     },
     

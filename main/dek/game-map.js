@@ -225,6 +225,18 @@ const THEKILLINGANTIDOTE = {
     },
 }
 
+const MGS_DELTA = {
+    providers: {
+        nexus: "metalgearsoliddeltasnakeeater"
+    },
+    platforms: {
+        game: {
+            steam: {id: "2417610", root: "MGSDelta", app: "MGSDelta"},
+            // modloader: {ue4ss: KNOWN_MODLOADERS.optional_ue4ss}
+        }
+    },
+}
+
 
 
 export default {
@@ -241,4 +253,5 @@ export default {
     // "stellar-blade-demo": STELLARBLADEDEMO,
     "tekken8": TEKKEN8,
     "the-killing-antidote": THEKILLINGANTIDOTE,
+    "mgs-delta": MGS_DELTA,
 }
