@@ -880,3 +880,7 @@ a:hover {
     font-size: 36px;
     color: #e4e4e4;
 }
+
+::-webkit-scrollbar-corner {
+    display: none;
+}
