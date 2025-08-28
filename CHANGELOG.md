@@ -15,6 +15,13 @@
 - sort options for mods
 
 
+### v0.10.63
+- Massive improvements to logic for how app installs ue4ss.
+- Application now able to install custom versions of ue4ss.
+- Added support for MGS: Delta.
+- Small UI enhancements.
+
+
 ### v0.10.22
 - Bugfix for certain bbcode from nexus causing render errors. 
 - Added suggested mods for stellar blade
