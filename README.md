@@ -53,19 +53,21 @@ List your Palworld server in UE Mod Hub using the `UE Mod Hub (Server Listing Mo
 <hr class="mt-1">
 
 ### Supported Games
-- Palworld
-- Palworld Server
+- Black Myth Wukong
 - Final Fantasy VII Remake Integrade
 - Final Fantasy VII Rebirth
 - Hogwarts Legacy
-- Black Myth Wukong
 - Lockdown Protocol
-- Tekken 8
-- Stellar Blade
-- Orcs Must die 3
-- Orcs Must Die: Deathtrap
-- The Killing Antidote
+- Metal Gear Solid: Delta 
 - More coming soon <3
+- Orcs Must Die: Deathtrap
+- Orcs Must die 3
+- Palworld
+- Palworld Server
+- Stellar Blade
+- Tekken 8
+- The Killing Antidote
+- ..More coming soon <3
 <hr class="mt-1">
 
 ### Technical Details
