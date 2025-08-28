@@ -35,6 +35,9 @@ function stringifyJSON(data) {
     return stringify(data, { maxLength: 124, indent: 4 });
 }
 
+async function wait(milliseconds = 1000) {
+    return new Promise((r) => setTimeout(r, milliseconds));
+}
 
 /**
  * PalHUB API Interface <3
@@ -159,7 +162,13 @@ export class Client {
                                 const ue4ss_root = path.join(game_path, `${root}/Binaries/${ue4ss_dir}`);
                                 const ue4ss_path = path.join(ue4ss_root, "dwmapi.dll");
                                 const has_ue4ss = await fs.access(ue4ss_path).then(()=>true).catch(()=>false);
+                                let ue4ss_settings = path.join(ue4ss_root, "UE4SS-settings.ini");
+                                const ue4ss_settings_exp = path.join(ue4ss_root, 'ue4ss', "UE4SS-settings.ini");
+                                const has_experimental_settings = await fs.access(ue4ss_settings_exp).then(()=>true).catch(()=>false);
+                                if (has_ue4ss && has_experimental_settings) ue4ss_settings = ue4ss_settings_exp;
                                 // const nexus_slug = map_data.providers.nexus
+
+                                console.log("found ue4ss settings:", ue4ss_settings);
 
                                 // returns `game` object with all the data <3
                                 return resolve({
@@ -172,6 +181,7 @@ export class Client {
                                     has_ue4ss,
                                     ue4ss_path,
                                     ue4ss_root,
+                                    ue4ss_settings,
                                     content_path,
                                     launch_type,
                                     map_data,
@@ -641,7 +651,7 @@ export class Client {
                 });
 
                 console.log("extracted to:", install_path);
-                await archive.extractAllTo(install_path, true, ignored_files);
+                await archive.extractAllTo(install_path, ignored_files);
 
                 // add mod data to the config file
                 const propName = isLocal ? 'local_mods' : 'mods';
@@ -954,8 +964,35 @@ export class Client {
         await this.writeJSON(cache_path, config);
     }
 
+    static async getUe4ssDataFromJSON(game_path) {
+        const config = await this.readJSON(game_path);
+        return config.ue4ss || {};
+    }
 
+    static async addUe4ssDataToJSON(game_path, ue4ss_data) {
+        const config = await this.readJSON(game_path);
+        config.ue4ss = ue4ss_data;
+        return await this.writeJSON(game_path, config);
+    }
 
+    static async removeUe4ssDataFromJSON(game_path) {
+        const config = await this.readJSON(game_path);
+        delete config.ue4ss;
+        return await this.writeJSON(game_path, config);
+    }
+
+    static async addUe4ssDataToCacheJSON(cache_path, key, ue4ss_data) {
+        const config = await this.readJSON(cache_path);
+        config.ue4ss = config.ue4ss || {};
+        config.ue4ss[key] = ue4ss_data;
+        return await this.writeJSON(cache_path, config);
+    }
+
+    static async removeUe4ssDataFromCacheJSON(cache_path, key) {
+        const config = await this.readJSON(cache_path);
+        delete config.ue4ss[key];
+        return await this.writeJSON(cache_path, config);
+    }
 
     static async uninstallFilesFromCache(cache_path, mod, file) {
         console.log('uninstalling files from cache', {cache_path, mod: mod.mod_id, file});
@@ -1019,7 +1056,73 @@ export class Client {
             });
         });
     }
+    static async fetchLatestExperimentalUE4SS() {
+        const releaseUrl = "https://api.github.com/repos/UE4SS-RE/RE-UE4SS/releases/tags/experimental-latest";
 
+        return new Promise((resolve, reject) => {
+            https.get(releaseUrl, { headers: { "User-Agent": "Node.js" } }, (response) => {
+                if (response.statusCode !== 200) {
+                    return reject(new Error(`Failed to fetch UE4SS release (${response.statusCode})`));
+                }
+
+                let data = "";
+                    response.on("data", (chunk) => {
+                    data += chunk;
+                });
+
+                response.on("end", () => {
+                    try {
+                        const releaseData = JSON.parse(data);
+                        const version = releaseData.tag_name?.replace(/^v/i, "") || "experimental";
+
+                        // Find main ZIP asset (matches either UE4SS_v*.zip or zDEV*.zip)
+                        const test = a => /\.zip$/i.test(a.name) && (a.name.startsWith("UE4SS_v") || a.name.includes("zDEV"));
+                        const asset = releaseData.assets.find(test);
+
+                        if (!asset) {
+                            return reject(new Error("No suitable ZIP asset found in experimental release"));
+                        }
+
+                        resolve({
+                            version,
+                            downloadUrl: asset.browser_download_url
+                        });
+                    } catch (err) {
+                        reject(new Error(`Failed to parse release data: ${err.message}`));
+                    }
+                });
+            }).on("error", (err) => {
+                reject(new Error(`Failed to fetch release info: ${err.message}`));
+            });
+        });
+    }
+
+    
+    /**
+     * Remove base path `a` from full path `b`
+     * and return nested folders progressively,
+     * each ending with a backslash.
+     * The final file name in `b` is excluded.
+     */
+    static getNestedFolders(a, b) {
+        const base = path.resolve(a);
+        const full = path.resolve(b);
+
+        if (!full.startsWith(base)) {
+            throw new Error(`Path "${b}" is not inside base path "${a}"`);
+        }
+
+        const relative = path.relative(base, full);
+        if (!relative) return [];
+
+        const parts = relative.split(path.sep);
+
+        return parts.map((part, i) => {
+            const isFinal = i === parts.length - 1;
+            if (isFinal) return parts.slice(0, i + 1).join(path.sep);
+            return parts.slice(0, i + 1).join(path.sep) + path.sep;
+        });
+    }
 
     // downloads latest release from the UE4SS github repo
     // https://github.com/UE4SS-RE/RE-UE4SS/releases
@@ -1028,26 +1131,31 @@ export class Client {
     static async downloadAndInstallUE4SS(cache_dir, game_path, options) {
         // get latest release download url:
         // let ue4ss_version = null;
-        const ue4ss_version = options.version ?? 'v3.0.1';
+        let ue4ss_version = options.version ?? 'v3.0.1';
         const ue4ss_zip = options.zip ?? `UE4SS_${ue4ss_version}.zip`;
-
-        // if (options.version === 'experimental-latest') {
-        //     // fetch the latest experimental version
-        //     try {
-        //         const latestRelease = await this.fetchLatestUE4SSVersion();
-        //         ue4ss_version = latestRelease.version;
-        //         console.log("Latest experimental UE4SS version:", ue4ss_version);
-        //     } catch (error) {
-        //         console.error("Failed to fetch latest experimental UE4SS version:", error);
-        //         return false;
-        //     }
-        // } else {
-        //     ue4ss_version = options.zip ?? options.version ?? '3.0.1';
-        // }
-
-
         const release_url = 'https://github.com/UE4SS-RE/RE-UE4SS/releases';
-        const url = `${release_url}/download/${ue4ss_version}/${ue4ss_zip}`;
+        let url = `${release_url}/download/${ue4ss_version}/${ue4ss_zip}`;
+
+        // If the version is experimental-latest, fetch the latest experimental version
+        // https://github.com/UE4SS-RE/RE-UE4SS/releases/tag/experimental-latest
+        if (options.version === 'experimental-latest') {
+            // fetch the latest experimental version
+            try {
+                const latestRelease = await this.fetchLatestExperimentalUE4SS();
+                ue4ss_version = latestRelease.version;
+                url = latestRelease.downloadUrl;
+                console.log("Latest experimental UE4SS version:", ue4ss_version);
+            } catch (error) {
+                console.error("Failed to fetch latest experimental UE4SS version:", error);
+                return false;
+            }
+        }
+        else if (options.version === "custom") {
+            ue4ss_version = options.version;
+            url = options.url;
+            console.log("Custom UE4SS version:", ue4ss_version);
+            console.log("Custom UE4SS URL:", url);
+        }
 
         try {
             const path_data = await this.validateGamePath(game_path);
@@ -1062,14 +1170,27 @@ export class Client {
                 onProgress: data => Emitter.emit("ue4ss-process", 'download', data),
             });
 
+            const ue4ss_filename = url.split("/").pop();
+            await this.addUe4ssDataToCacheJSON(cache_dir, ue4ss_filename, url);
+
             // unzip and install
-            const archive = new ArchiveHandler(path.join(cache_dir, url.split("/").pop()));
+            const archive = new ArchiveHandler(path.join(cache_dir, ue4ss_filename));
+            const ue4ss_entries = [];
+
             // forward the extracting event to the renderer
             archive.on("extracting", (data) => {
                 Emitter.emit("ue4ss-process", 'extract', data);
+                ue4ss_entries.push(data.outputPath);
             });
+
             // extract the zip to the game directory
-            await archive.extractAllTo(ue4ss_install_dir, true);
+            await archive.extractAllTo(ue4ss_install_dir, [], options.ignore_root_download_folder);
+
+            await wait(250); // small wait to ensure extracting events have occurred before continuing.
+
+            // for (const entry of archive.entries) {
+            //     ue4ss_entries.push(path.join(ue4ss_install_dir, entry.entryName));
+            // }
 
             // patchdata example:
             // { "Mods/BPModLoaderMod/Scripts/main.lua": "https://raw.githubusercontent.com/Okaetsu/RE-UE4SS/refs/heads/logicmod-temp-fix/assets/Mods/BPModLoaderMod/Scripts/main.lua" }
@@ -1082,11 +1203,24 @@ export class Client {
                     });
                     const patchfile = path.join(cache_dir, url.split("/").pop());
                     const patchpath = path.join(game_path, filetoreplace);
+                    const patch_folders = this.getNestedFolders(ue4ss_install_dir, patchpath);
+                    // ue4ss_entries.push(patchpath, ...patch_folders);
+                    ue4ss_entries.push(...patch_folders.map(folder => path.join(ue4ss_install_dir, folder)));
+
                     console.log("patching file:", patchfile, patchpath);
+                    // ensure directory before copy:
+                    await fs.mkdir(path.dirname(patchpath), { recursive: true });
                     await fs.copyFile(patchfile, patchpath);
+                    Emitter.emit("ue4ss-process", 'patching', patchpath);
                 }
             }
-            
+
+            // ue4ss_entries.sort((a, b) => b.length - a.length);
+            await this.addUe4ssDataToJSON(game_path, {
+                file: ue4ss_filename,
+                entries: [...new Set(ue4ss_entries)],
+            });
+
             Emitter.emit("ue4ss-process", 'complete', { success: true });
 
             return true;
@@ -1098,13 +1232,53 @@ export class Client {
         return false;
     }
 
+    // TESTING NEW METHOD FOR UNINSTALLING - REQUIRES NO ZIP AS DATA SAVED IN CACHE
     static async uninstallUE4SS(cache_dir, game_path, options) {
+        const ue4ss_data = await this.getUe4ssDataFromJSON(game_path);
+        const ue4ss_entries = ue4ss_data.entries;
+        try {
+            // sort entries by length (longest first)
+            ue4ss_entries.sort((a, b) => b.length - a.length);
+            // keep track of used entries
+            const used_entries = [];
+            // delete files (not directories)
+            for (const entry of ue4ss_entries) {
+                if ((await fs.stat(entry)).isDirectory()) continue;
+                Emitter.emit("ue4ss-process", 'delete', entry);
+                used_entries.push(entry);
+                await fs.unlink(entry);
+            }
+            //  delete empty dirs:
+            for (const entry of ue4ss_entries) {
+                if (used_entries.includes(entry)) continue;
+                if (!(await fs.stat(entry)).isDirectory()) continue;
+                const files = await fs.readdir(entry);
+                if (files.length) continue;
+
+                console.log("deleting empty directory:", entry);
+                await fs.rmdir(entry, { recursive: true });
+            }
+            await this.removeUe4ssDataFromJSON(game_path);
+            Emitter.emit("ue4ss-process", 'uninstalled', { success: true });
+            return true;
+        } catch (error) {
+            console.log("new ue4ss method uninstall error, maybe ue4ss was installed using previous version?");
+            console.error("uninstallUE4SS error", error);
+            return await this.DEPRECIATED_uninstallUE4SS(cache_dir, game_path, options);
+        }
+    }
+    
+    // CODE BELOW IS FUNCTIONAL BUT REQUIRES ZIP ARCHIVE TO DETERMINE ENTRIES
+    static async DEPRECIATED_uninstallUE4SS(cache_dir, game_path, options) {
         try {
             const path_data = await this.validateGamePath(game_path);
             const ue4ss_install_dir = path_data.ue4ss_root;
             console.log("uninstalling UE4SS from", ue4ss_install_dir);
 
-            const archive = new ArchiveHandler(path.join(cache_dir, options.zip ?? `UE4SS_${options.version}.zip`));
+            let ue4ss_version = options.version ?? 'v3.0.1';
+            const ue4ss_zip = options.zip ?? `UE4SS_${ue4ss_version}.zip`;
+
+            const archive = new ArchiveHandler(path.join(cache_dir, options.zip ?? ue4ss_zip));
             const entries = await archive.getEntries();
             // remove each entry
             for (const entry of entries) {

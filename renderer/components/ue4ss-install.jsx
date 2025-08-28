@@ -54,20 +54,23 @@ export default function UE4SSInstallProgress({ game, onComplete }) {
             addLogMessage('Setting UE4SS Default Settings');
 
             const game_data = await window.palhub('validateGamePath', game.path);
-
-            const ini_path = await window.palhub('joinPath', game_data.ue4ss_root, 'UE4SS-settings.ini');
-            let updated_ini = await window.palhub('readFile', ini_path, { encoding: 'utf-8' });
-
             const {settings} = game_data.map_data.platforms[game.launch_type].modloader.ue4ss;
-            for (const setting in settings) {
-                if (!Object.prototype.hasOwnProperty.call(settings, setting)) continue;
-                const [category, key] = setting.split('.');
-                updated_ini = replaceUe4ssIniKeyValue(updated_ini, category, key, settings[setting]);
-                addLogMessage(`Set ${setting} to ${settings[setting]}`);
+            if (Object.keys(settings).length === 0) {
+                addLogMessage('No UE4SS settings found');
+            } else {
+                addLogMessage('Found UE4SS settings, applying defaults');
+                const ini_path = game_data.ue4ss_settings;//await window.palhub('joinPath', game_data.ue4ss_root, 'UE4SS-settings.ini');
+                let updated_ini = await window.palhub('readFile', ini_path, { encoding: 'utf-8' });
+                for (const setting in settings) {
+                    if (!Object.prototype.hasOwnProperty.call(settings, setting)) continue;
+                    const [category, key] = setting.split('.');
+                    updated_ini = replaceUe4ssIniKeyValue(updated_ini, category, key, settings[setting]);
+                    addLogMessage(`Set ${setting} to ${settings[setting]}`);
+                }
+                //  do any other configuration initialization changes here.
+                await window.palhub('writeFile', ini_path, updated_ini, { encoding: 'utf-8' });
+                addLogMessage('Successfully updated UE4SS-Settings.ini');
             }
-            //  do any other configuration initialization changes here.
-            await window.palhub('writeFile', ini_path, updated_ini, { encoding: 'utf-8' });
-            addLogMessage('Successfully updated UE4SS-Settings.ini');
             onFinished();
         } catch (error) {
             console.error(error);
@@ -95,6 +98,10 @@ export default function UE4SSInstallProgress({ game, onComplete }) {
                     addLogMessage(data);
                     break;
                 }
+                case 'patching': {
+                    addLogMessage(`Patching: ${data}`);
+                    break;
+                }
                 case 'complete': {
                     addLogMessage('UE4SS Installation Complete!');
                     setUe4ssDefaultSettings();
@@ -113,7 +120,9 @@ export default function UE4SSInstallProgress({ game, onComplete }) {
 
     // return <pre className="m-0 p-2 text-start">{logMessages.join('\n')}</pre>;
 
-    return <div className="overflow-auto m-0 p-3" style={{ height }} ref={logRef}>
-        <pre className="m-0 p-2 text-start">{logMessages.join('\n')}</pre>
+    return <pre className="m-0 p-3 radius0 text-start" ref={logRef} style={{ height }}>{logMessages.join('\n')}</pre>
+
+    return <div className="m-0" ref={logRef}>
+        <pre className="m-0 p-3 radius0 text-start" style={{ height }}>{logMessages.join('\n')}</pre>
     </div>;
 }

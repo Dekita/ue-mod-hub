@@ -156,10 +156,12 @@ class ArchiveHandler extends EventEmitter {
         return this.entries;
     }
 
-    async extractEntry(entry, outputPath) {
+    async extractEntry(entry, outputPath, ignored_segment=null) {
         // if (!!!entry.outputPath) return;
 
-        const outputFilePath = path.join(outputPath, entry.outputPath ?? entry.entryName);
+        const entryPath = entry.outputPath ?? entry.entryName;
+        const finalEntryPath = ignored_segment ? entryPath.replace(ignored_segment, '') : entryPath;
+        const outputFilePath = path.join(outputPath, finalEntryPath);
         console.log('extracting:', entry.entryName, 'to:', outputFilePath);
 
         this.emit('extracting', {
@@ -175,17 +177,26 @@ class ArchiveHandler extends EventEmitter {
         }
     }
 
-    async extractAllTo(outputPath, overwrite = true, ignores = []) {
+    async extractAllTo(outputPath, ignores = [], ignore_root=false) {
         console.log('extracting to:', outputPath);
         const entries = await this.getEntries();
         // console.log('got entries:', entries);
+        let ignored_segment=null;
+        if (ignore_root) {
+            ignored_segment = entries.shift().entryName;
+            console.log('ignoring root folder segment:', ignored_segment);
+        }
         for (const entry of entries) {
             if (ignores.includes(entry.entryName)) {
                 console.log('ignoring:', entry.entryName);
                 continue;
             }
-            await this.extractEntry(entry, outputPath);
+            await this.extractEntry(entry, outputPath, ignored_segment);
         }
+        this.emit('extracted', {
+            entries,
+            outputPath,
+        });        
     }
 }
 

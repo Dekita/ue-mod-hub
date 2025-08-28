@@ -9,19 +9,30 @@ list of unreal engine games, their steam game/server app id
 const KNOWN_PATCHES = {
     palworld_server: {
         "Pal/Binaries/Win64/Mods/BPModLoaderMod/Scripts/main.lua": "https://raw.githubusercontent.com/Okaetsu/RE-UE4SS/refs/heads/logicmod-temp-fix/assets/Mods/BPModLoaderMod/Scripts/main.lua"
+    },
+    mgsdelta: {
+        "MGSDelta/Binaries/Win64/ue4ss/UE4SS_Signatures/GUObjectArray.lua": "https://raw.githubusercontent.com/mattdavida/MGS-Delta-UE4SS-Fix/refs/heads/main/UE4SS_Signatures/GUObjectArray.lua"
     }
 }
 
 const UE4SS_SETTINGS_PRESETS = {
     palworld: {
         "General.bUseUObjectArrayCache": false,
-    }
+    },
+    stellarblade: {
+        "General.bUseUObjectArrayCache": true,
+        "General.EnableHotReloadSystem": 0,
+    },
 }
 
 const KNOWN_MODLOADERS = {
     required_ue4ss: {version: "v3.0.1", required: true, patches: [], settings: {}},
     optional_ue4ss: {version: "v3.0.1", required: false,patches: [], settings: {}},
-    experimental_ue4ss: {version: "experimental-latest", zip: "UE4SS_v3.0.1-420-g8e08d13.zip", required: false, patches: [], settings: {}},
+    required_custom_ue4ss: {version: "custom", url: "", required: true, patches: [], settings: {}},
+    optional_custom_ue4ss: {version: "custom", url: "", required: false, patches: [], settings: {}},
+    // experimental_ue4ss: {version: "experimental-latest", zip: "UE4SS_v3.0.1-420-g8e08d13.zip", required: false, patches: [], settings: {}},
+    required_experimental_ue4ss: {version: "experimental-latest", required: true, patches: [], settings: {}},
+    optional_experimental_ue4ss: {version: "experimental-latest", required: false, patches: [], settings: {}}
 }
 
 // FORMAT: 
@@ -56,29 +67,6 @@ const KNOWN_MODLOADERS = {
 //         },
 //     },
 // },
-
-
-
-
-const STELLARBLADE = {
-    providers: {
-        nexus: "stellarblade"
-    },
-    platforms: {
-        demo: {
-            steam: {id: "3564860", root: "SB", app: "SB", match: /\/StellarBladeDemo/i, url: true},
-            // modloader: {ue4ss: KNOWN_MODLOADERS.optional_ue4ss}
-        },
-        game: {
-            steam: {id: "3489700", root: "SB", app: "SB", url: true},
-            // modloader: {ue4ss: KNOWN_MODLOADERS.optional_ue4ss}
-        },
-    },
-}
-
-// const STELLARBLADEDEMO = { ...STELLARBLADE };
-// STELLARBLADEDEMO.platforms.game.steam.id = "3564860";//"1294088";
-
 
 const PALWORLD = {
     providers: {
@@ -225,6 +213,32 @@ const THEKILLINGANTIDOTE = {
     },
 }
 
+const STELLARBLADE = {
+    providers: {
+        nexus: "stellarblade"
+    },
+    platforms: {
+        demo: {
+            steam: {id: "3564860", root: "SB", app: "SB", match: /\/StellarBladeDemo/i, url: true},
+            modloader: {ue4ss: {
+                ...KNOWN_MODLOADERS.optional_custom_ue4ss, 
+                url: "https://github.com/Chrisr0/RE-UE4SS/releases/download/3.1.0-6/UE4SS_v3.1.0-6.zip",
+                settings: UE4SS_SETTINGS_PRESETS.stellarblade,
+                ignore_root_download_folder: true, 
+            }}
+        },
+        game: {
+            steam: {id: "3489700", root: "SB", app: "SB", url: true},
+            modloader: {ue4ss: {
+                ...KNOWN_MODLOADERS.optional_custom_ue4ss, 
+                url: "https://github.com/Chrisr0/RE-UE4SS/releases/download/3.1.0-6/UE4SS_v3.1.0-6.zip",
+                settings: UE4SS_SETTINGS_PRESETS.stellarblade,
+                ignore_root_download_folder: true, 
+            }}
+        },
+    },
+}
+
 const MGS_DELTA = {
     providers: {
         nexus: "metalgearsoliddeltasnakeeater"
@@ -232,11 +246,13 @@ const MGS_DELTA = {
     platforms: {
         game: {
             steam: {id: "2417610", root: "MGSDelta", app: "MGSDelta"},
-            // modloader: {ue4ss: KNOWN_MODLOADERS.optional_ue4ss}
+            modloader: {ue4ss: {
+                ...KNOWN_MODLOADERS.optional_experimental_ue4ss, 
+                patches: [KNOWN_PATCHES.mgsdelta], 
+            }}
         }
     },
 }
-
 
 
 export default {
@@ -250,7 +266,6 @@ export default {
     "orcs-must-die-deathtrap": ORCSMUSTDIEDEATHTRAP,
     // "satisfactory": SATISFACTORY,
     "stellar-blade": STELLARBLADE,
-    // "stellar-blade-demo": STELLARBLADEDEMO,
     "tekken8": TEKKEN8,
     "the-killing-antidote": THEKILLINGANTIDOTE,
     "mgs-delta": MGS_DELTA,

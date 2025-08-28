@@ -90,7 +90,7 @@ export default function GameConfigurationModal({ show, setShow, tempGame, setTem
     const headerText = isInstallingModloader ? t('modals.modloader.installing-ue4ss') : t('modals.game-config.head');
     const modalOptions = {show, setShow, onCancel, headerText, showX: !isInstallingModloader};
     return <DekCommonAppModal {...modalOptions}>
-        <div type="DekBody" className='d-block overflow-y-auto pb-3' style={{height}}>
+        <div type="DekBody" className='d-block overflow-y-auto pb-0' style={{height}}>
             {modalOptions.showX && <DekChoice
                 disabled={!tempGame?.has_ue4ss}
                 className="p-3"
@@ -100,10 +100,10 @@ export default function GameConfigurationModal({ show, setShow, tempGame, setTem
                 onClick={(i, value) => setSettingsPageID(i)}
             />}
             <Carousel {...carouselOptions}>
-                <Carousel.Item className="container-fluid px-3">
+                <Carousel.Item className="container-fluid px-3 pb-3">
                     <GameConfiguration {...{tempGame, setTempGame, runModloaderTask, setShow}} />
                 </Carousel.Item>
-                <Carousel.Item className="container-fluid px-3">
+                <Carousel.Item className="container-fluid px-3 pb-3">
                     <Ue4ssConfigurator game={tempGame} />
                 </Carousel.Item>
                 <Carousel.Item className="">
