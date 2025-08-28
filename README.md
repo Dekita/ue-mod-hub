@@ -30,6 +30,7 @@ List your Palworld server in UE Mod Hub using the `UE Mod Hub (Server Listing Mo
 ### UE Mod Hub Features
 - Painless Installation 
 - Easily Navigable Modern UI 
+- Support for PAK & LUA mods, Splash screen images, and BNK movie files
 - Guided Setup After Install (w/Automatic Steam Game Path Detection)
 - Download & Install Mods From [NexusMods](https://www.nexusmods.com/)
 - Effortlessly manage your mod library and active mods with minimal clicks 
