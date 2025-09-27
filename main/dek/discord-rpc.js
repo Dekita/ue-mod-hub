@@ -3,6 +3,7 @@ import DEAP from './deap';
 import DiscordRPC from 'discord-rpc';
 
 import localization from '../../renderer/locales/en-dektionary.json';
+import game_map from './game-map';
 import fs from 'fs';
 
 // const path = require('path');
@@ -27,6 +28,7 @@ const gameToAppModID = {
     "palworld": 2017,
     "ff7rebirth": 69,
     "stellar-blade": 206,
+    "mgs-delta": 43,
 }
 
 const UPDATE_FREQ = 30e3;//15e3;
@@ -112,8 +114,9 @@ export default {
 
         let buttons = undefined;
         const nexusAppModID = gameToAppModID[gameName];
+        const nexusGameSlug = game_map[gameName]?.providers?.nexus;
         if (nexusAppModID) {
-            const url = `${nexusBaseURL}/${gameName}/mods/${nexusAppModID}`;
+            const url = `${nexusBaseURL}/${nexusGameSlug}/mods/${nexusAppModID}`;
             buttons = [{ label: 'Get The Mod Hub App', url }];
         }
 
