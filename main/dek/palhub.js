@@ -159,13 +159,17 @@ export class Client {
                                 const content_path = path.join(game_path, `${root}/Content`);
                                 const pak_path = path.join(game_path, `${root}/Content/Paks`);
                                 const ue4ss_dir = platform === "xbox" ? "WinGDK" : "Win64";
-                                const ue4ss_root = path.join(game_path, `${root}/Binaries/${ue4ss_dir}`);
+                                let ue4ss_root = path.join(game_path, `${root}/Binaries/${ue4ss_dir}`);
                                 const ue4ss_path = path.join(ue4ss_root, "dwmapi.dll");
                                 const has_ue4ss = await fs.access(ue4ss_path).then(()=>true).catch(()=>false);
+
                                 let ue4ss_settings = path.join(ue4ss_root, "UE4SS-settings.ini");
                                 const ue4ss_settings_exp = path.join(ue4ss_root, 'ue4ss', "UE4SS-settings.ini");
                                 const has_experimental_settings = await fs.access(ue4ss_settings_exp).then(()=>true).catch(()=>false);
-                                if (has_ue4ss && has_experimental_settings) ue4ss_settings = ue4ss_settings_exp;
+                                if (has_ue4ss && has_experimental_settings) {
+                                    ue4ss_root = path.join(ue4ss_root, 'ue4ss');
+                                    ue4ss_settings = ue4ss_settings_exp;
+                                }
                                 // const nexus_slug = map_data.providers.nexus
 
                                 console.log("found ue4ss settings:", ue4ss_settings);
@@ -518,8 +522,9 @@ export class Client {
                     install_path = path.join(game_path, game_data.unreal_root, 'Content');
                     break;
                 case "Mods/":
-                    if (game_path.includes('XboxGames')) install_path = path.join(game_path, game_data.unreal_root, "Binaries/WinGDK");
-                    else install_path = path.join(game_path, game_data.unreal_root, "Binaries/Win64");
+                    install_path = game_data.ue4ss_root;
+                    // if (game_path.includes('XboxGames')) install_path = path.join(game_path, game_data.unreal_root, "Binaries/WinGDK");
+                    // else install_path = path.join(game_path, game_data.unreal_root, "Binaries/Win64");
                     break;
                 case "Movies/":
                     install_path = path.join(game_path, game_data.unreal_root, "Content/Movies");
@@ -551,8 +556,9 @@ export class Client {
                     install_path = path.join(game_path, game_data.unreal_root, "Binaries"); 
                     break;
                 case "Mods/":
-                    if (game_path.includes('XboxGames')) install_path = path.join(game_path, game_data.unreal_root, "Binaries/WinGDK");
-                    else install_path = path.join(game_path, game_data.unreal_root, "Binaries/Win64");
+                    install_path = game_data.ue4ss_root;
+                    // if (game_path.includes('XboxGames')) install_path = path.join(game_path, game_data.unreal_root, "Binaries/WinGDK");
+                    // else install_path = path.join(game_path, game_data.unreal_root, "Binaries/Win64");
                     break;
                 case "Movies/":
                     install_path = path.join(game_path, game_data.unreal_root, "Content");
@@ -694,8 +700,9 @@ export class Client {
                         base_path = path.join(game_path, game_data.unreal_root, "Binaries");
                         break;
                     case "Mods/":
-                        if (game_path.includes('XboxGames')) base_path = path.join(game_path, game_data.unreal_root, "Binaries/WinGDK");
-                        else base_path = path.join(game_path, game_data.unreal_root, "Binaries/Win64");
+                        base_path = game_data.ue4ss_root;
+                        // if (game_path.includes('XboxGames')) base_path = path.join(game_path, game_data.unreal_root, "Binaries/WinGDK");
+                        // else base_path = path.join(game_path, game_data.unreal_root, "Binaries/Win64");
                         break;
                     case "Movies/":
                         base_path = path.join(game_path, game_data.unreal_root, "Content");
